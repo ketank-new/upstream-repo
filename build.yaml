@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: retry-strategy-template
+  annotations:
+    argocd.argoproj.io/hook: Sync
+spec:
+  templates:
+    - name: retry-template
+      script:
+        image:  conda/c3i-linux-64
+        securityContext:
+          privileged: true
+        command: ["bash"]
+        # fail with a 66% probability
+        source: |
+          set -e
+          conda info
+          conda install git
+          git clone https://github.com/SiyaAmonkar/numactl-feedstock.git
+          cd numactl-feedstock/recipe
+          conda install conda-build
+          conda-build meta.yaml
